@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 streamlit
 langchain
 langchain-google-genai
 langchain_core
 google-generativeai
 faiss-cpu
+=======
+streamlit
+langchain
+langchain-google-genai
+langchain_core
+google-generativeai
+faiss-cpu
+>>>>>>> b17e514b1311ed4a1a9ab15f7c3de7600cbd86ba
 python-dotenv
