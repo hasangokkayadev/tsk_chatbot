@@ -3,6 +3,6 @@ langchain
 langchain-google-genai
 langchain_core
 google-generativeai
-fitz
+PyMuPDF
 faiss-cpu
 python-dotenv
