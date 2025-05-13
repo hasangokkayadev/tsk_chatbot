@@ -19,6 +19,37 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 st.set_page_config(page_title="TSK İç Hizmet Asistanı", layout="wide")
 st.title("⚖️ TSK İç Hizmet Asistanı")
 
+
+form_key = f"chat_form_{uuid.uuid4()}"  # Her yüklemede benzersiz form anahtarı
+# Stil (sayfayı ortala ve daha güzel UI için padding)
+st.markdown("""
+            
+<style>
+    .block-container {
+        padding-top: 2rem;
+        max-width: 800px;
+        margin: auto;
+    }
+    .chat-bubble {
+        border-radius: 1rem;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    .user {
+        background-color: #e0f7fa;
+        text-align: right;
+    }
+    .assistant {
+        background-color: #f1f8e9;
+        text-align: left;
+    }
+    .custom-input {
+        max-width: 700px;
+        margin: 2rem auto 1rem auto;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # PDF satırlarını yükleyen fonksiyon
 @st.cache_data
 def load_pdf_lines(path):
@@ -52,15 +83,7 @@ def create_vectorstore():
         vectorstore = FAISS.from_documents(all_docs, embeddings)
         vectorstore.save_local(vectorstore_path)
         return vectorstore
-
-
-# Gemini RAG zinciri oluşturma
-@st.cache_resource
-def build_chain(_vectorstore):
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, google_api_key=GOOGLE_API_KEY)
-    retriever = _vectorstore.as_retriever(search_kwargs={"k": 10})
-    return RetrievalQA.from_chain_type(llm=llm, retriever=retriever, return_source_documents=True, chain_type="stuff")
-
+    
 # Markdown cevabı biçimlendir
 def format_markdown_answer(text):
     text = re.sub(r"📘 (.*?)(?=\n|$)", r"**📘 \1**", text)
@@ -73,11 +96,6 @@ def format_markdown_answer(text):
 def extract_article_number(text):
     match = re.search(r"(?i)(madde|md\.)\s*(\d+)", text)
     return match.group(0) if match else "–"
-
-# Veritabanını hazırla
-with st.spinner("🔄 FAISS vektör veritabanı hazırlanıyor..."):
-    vector_db = create_vectorstore()
-    rag_chain = build_chain(_vectorstore=vector_db)
 
 # Chat Prompt Template
 system_prompt = """
@@ -105,38 +123,23 @@ Relevant documents: {context}
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
-    ("user", "{input}"),
+    ("user", "{question}"),
 ])
 
-form_key = f"chat_form_{uuid.uuid4()}"  # Her yüklemede benzersiz form anahtarı
-# Stil (sayfayı ortala ve daha güzel UI için padding)
-st.markdown("""
-            
-<style>
-    .block-container {
-        padding-top: 2rem;
-        max-width: 800px;
-        margin: auto;
-    }
-    .chat-bubble {
-        border-radius: 1rem;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    .user {
-        background-color: #e0f7fa;
-        text-align: right;
-    }
-    .assistant {
-        background-color: #f1f8e9;
-        text-align: left;
-    }
-    .custom-input {
-        max-width: 700px;
-        margin: 2rem auto 1rem auto;
-    }
-</style>
-""", unsafe_allow_html=True)
+
+# Gemini RAG zinciri oluşturma
+@st.cache_resource
+def build_chain(_vectorstore):
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, google_api_key=GOOGLE_API_KEY)
+    retriever = _vectorstore.as_retriever(search_kwargs={"k": 10})
+    return RetrievalQA.from_chain_type(llm=llm, retriever=retriever, return_source_documents=True, chain_type="stuff", chain_type_kwargs={"prompt": prompt})
+
+
+
+# Veritabanını hazırla
+with st.spinner("🔄 FAISS vektör veritabanı hazırlanıyor..."):
+    vector_db = create_vectorstore()
+    rag_chain = build_chain(_vectorstore=vector_db)
 
 
 # --- Zincir Hazırla ---
