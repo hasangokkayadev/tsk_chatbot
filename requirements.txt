@@ -3,5 +3,6 @@ langchain
 langchain-google-genai
 langchain_core
 google-generativeai
+fitz
 faiss-cpu
 python-dotenv
