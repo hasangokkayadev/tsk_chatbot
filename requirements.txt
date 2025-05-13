@@ -4,11 +4,4 @@ langchain-google-genai
 langchain_core
 google-generativeai
 faiss-cpu
-=======
-streamlit
-langchain
-langchain-google-genai
-langchain_core
-google-generativeai
-faiss-cpu
 python-dotenv
