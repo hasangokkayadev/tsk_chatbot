@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 
 # Ortam değişkenlerini yükle
-load_dotenv()
+#load_dotenv()
 GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 
 # Streamlit sayfa ayarları
