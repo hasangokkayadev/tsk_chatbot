@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 # Ortam değişkenlerini yükle
 load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.secrets("GOOGLE_API_KEY")
 
 # Streamlit sayfa ayarları
 st.set_page_config(page_title="TSK İç Hizmet Asistanı", layout="wide")
